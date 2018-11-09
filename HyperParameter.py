@@ -14,10 +14,13 @@ Parameters:
     A: linear measurement matrix of size nxm
     y: measurements y=Ax
     z: squared value of y
+    seed: random seed
 
     isComplex: control whether x is complex-value
     Options: compared algorithms
     trial_num: number of experiments for each algorithm
+    data_type:  'Gaussian' 1D random Gaussian vector
+                'digital' 1D 0-1 vector (k is the number of 1)
 """
 
 
@@ -29,8 +32,4 @@ k = 10
 isComplex = True
 trial_num = 500
 Options = ['Newton']
-
-
-
-
-
+data_type = 'Gaussian'
