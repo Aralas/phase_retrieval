@@ -1,12 +1,13 @@
 # -*- coding:utf-8 -*-
 """
 @author:Xu Jingyi
-@file:Solvers.py
+@file:Algorithms.py
 @time:2018/11/914:38
 
 
 
 Algorithms:
+    GD_PR: Gradient Descent Phase Retrieval (Wirtinger Flow)
     N_PR: Newton Phase Retrieval
     GN_PR: Gaussian Newton Phase Retrieval
     SP_PR: Subspace Pursuit Phase Retrieval
@@ -42,6 +43,12 @@ class PhaseRetrieval(object):
         y0 = abs(self.A.dot(x0))
         error = np.linalg.norm(y0 - self.y, 2)
         return error
+
+
+class GD_PR(PhaseRetrieval):
+    def solver(self):
+        for iteration in range(self.trial_num):
+            pass
 
 
 class N_PR(PhaseRetrieval):

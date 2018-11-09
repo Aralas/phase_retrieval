@@ -28,25 +28,22 @@ import HyperParameter as hp
 import numpy as np
 import random
 
-n = hp.n
-m = hp.m
-k = hp.k
-
-isComplex = hp.isComplex
-data_type = hp.data_type
+param = hp.param_settings
 
 
-def generateData(seed):
-    random.seed(seed)
-    np.random.seed(seed)
-    if data_type == 'Gaussian':
-        x = np.random.randn(n, 1) + np.random.randn(n, 1)*(1j)*isComplex
-    elif data_type == 'digital':
-        x = np.ones(n, 1)
-    if k != n:
-        indices = random.sample(range(n), n - k)
+def generateData():
+    # random.seed(seed)
+    # np.random.seed(seed)
+    if param.data_type == 'Gaussian':
+        x = np.random.randn(param.n, 1) + np.random.randn(n, 1) * (1j) * param.isComplex
+    elif param.data_type == 'digital':
+        x = np.ones(param.n, 1)
+    else:
+        print('There is no such type of data: %s' % param.data_type)
+    if param.k < param.n:
+        indices = random.sample(range(param.n), param.n - param.k)
         x[indices] = 0
-    A = np.random.randn(m, n) + np.random.randn(m, n)*(1j)*isComplex
+    A = np.random.randn(param.m, param.n) + np.random.randn(param.m, param.n) * (1j) * param.isComplex
     y = A.dot(x)
     z = np.power(y, 2)
-    return (x, A, y, z)
+    return x, A, y, z
