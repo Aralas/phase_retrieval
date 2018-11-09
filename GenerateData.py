@@ -40,13 +40,13 @@ def generateData(seed):
     random.seed(seed)
     np.random.seed(seed)
     if data_type == 'Gaussian':
-        x = np.random.randn(n, 1) + np.random.randn(n, 1)*np.array(1j)*isComplex
+        x = np.random.randn(n, 1) + np.random.randn(n, 1)*(1j)*isComplex
     elif data_type == 'digital':
         x = np.ones(n, 1)
     if k != n:
         indices = random.sample(range(n), n - k)
         x[indices] = 0
-    A = np.random.randn(m, n) + np.random.randn(m, n)*np.array(1j)*isComplex
+    A = np.random.randn(m, n) + np.random.randn(m, n)*(1j)*isComplex
     y = A.dot(x)
     z = np.power(y, 2)
     return (x, A, y, z)
