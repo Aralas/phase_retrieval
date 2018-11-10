@@ -26,73 +26,104 @@ class LossFunction(object):
         return grad
 
 
-class ChooseStep(object):
+class StepChooser(object):
 
-    def __init__(self, loss_func, t0=1, alpha=0.3, beta=0.8):
-        self.alpha = alpha
-        self.beta = beta
-
+    def __init__(self, loss_func):
+        self.alpha = 0.3
+        self.beta = 0.8
         self.loss_func = loss_func
-        self.step = t0
+        self.tau = 330
 
-        self.x_hat = loss_func.x_hat
-
-
-class BacktrackingLineSearch(ChooseStep):
-
-    def __init__(self, loss_func,  t0=1, alpha=0.3, beta=0.8):
-        ChooseStep.__init__(self, loss_func,  t0, alpha, beta)
-
-    def choose_step(self):
-        step = self.step
-        while self.loss_func.f(self.x_hat + step * self.delta_x) >= (
-                self.loss_func.f(self.x_hat) + self.alpha * step * np.dot(self.loss_func.grad.transpose(),
-                                                                          self.delta_x)):
+    def backtracking_line_search(self, x_hat, delta_x, iter):
+        step = 1
+        while self.loss_func.f(x_hat + step * delta_x) >= (
+                self.loss_func.f(x_hat) + self.alpha * step * np.dot(self.loss_func.gradient(x_hat).transpose(),
+                                                                     delta_x)):
             step = step * self.beta
         return step
 
-
-class StepDecline(ChooseStep):
-
-    def __init__(self, loss_func,  t0=1, alpha=0.3, beta=0.8):
-        ChooseStep.__init__(self, loss_func,  t0, alpha, beta)
-
-    def choose_step(self):
-        return min(0.1, (1 - math.exp(-1 * self.iter / 330)) / 2)
+    def step_decline(self, x_hat, delta_x, iter):
+        return min(0.1, (1 - math.exp(-1 * iter / self.tau)) / 2)
 
 
-class GradientDescent(LossFunction):
+# class BacktrackingLineSearch(object):
+#
+#     def __init__(self, loss_func, tau=330, alpha=0.3, beta=0.8):
+#         self.alpha = alpha
+#         self.beta = beta
+#         self.loss_func = loss_func
+#
+#     def choose_step(self, x_hat, delta_x, iter):
+#         step = 1
+#         while self.loss_func.f(x_hat + step * delta_x) >= (
+#                 self.loss_func.f(x_hat) + self.alpha * step * np.dot(self.loss_func.gradient(x_hat).transpose(),
+#                                                                      delta_x)):
+#             step = step * self.beta
+#         return step
+#
+#
+# class StepDecline(object):
+#
+#     def __init__(self, loss_func, tau=330, alpha=0.3, beta=0.8):
+#         self.tau = tau
+#
+#     def choose_step(self, x_hat, delta_x, iter):
+#         return min(0.1, (1 - math.exp(-1 * iter / self.tau)) / 2)
 
-    def __init__(self, A, y, z, step_chooser):
+
+class Searcher(LossFunction):
+
+    def __init__(self, A, y, z):
         LossFunction.__init__(self, A, y, z)
-        self.delta_x = -1 * self.grad
-        self.step_chooser = step_chooser
 
-    def searching(self, x_hat, step):
-        step = self.step_chooser.choose_step()
-        x_new = self.x_hat + step * self.delta_x
+    def gradient_descent(self, x_hat, delta_x, step):
+        x_new = x_hat + step * delta_x
         return x_new
 
-
-class Newton(LossFunction):
-
-    def searching(self):
+    def newton(self, x_hat, delta_x, step):
         pass
 
-
-class GuassianNewton(LossFunction):
-
-    def searching(self):
+    def gaussian_newton(self, x_hat, delta_x, step):
         pass
 
-
-class SteepestDescent(LossFunction):
-
-    def searching(self):
+    def steepest_descent(self, x_hat, delta_x, step):
         pass
 
-
-class CoordinateDescent(LossFunction):
-
-    def searching(self):
+    def coordinate_descent(self, x_hat, delta_x, step):
         pass
+
+# class GradientDescent(LossFunction):
+#
+#     def __init__(self, A, y, z, step_chooser):
+#         LossFunction.__init__(self, A, y, z)
+#         self.step_chooser = step_chooser
+#
+#     def searching(self, x_hat, iter):
+#         delta_x = -1 * self.gradient(x_hat)
+#         step = self.step_chooser.choose_step(delta_x, iter)
+#         x_new = x_hat + step * delta_x
+#         return x_new
+#
+#
+# class Newton(LossFunction):
+#
+#     def searching(self):
+#         pass
+#
+#
+# class GuassianNewton(LossFunction):
+#
+#     def searching(self):
+#         pass
+#
+#
+# class SteepestDescent(LossFunction):
+#
+#     def searching(self):
+#         pass
+#
+#
+# class CoordinateDescent(LossFunction):
+#
+#     def searching(self):
+#         pass

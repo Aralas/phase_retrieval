@@ -14,13 +14,48 @@ init_spectral           Initializer proposed in Algorithm1 of the Wirtinger
 init_optimal_spectral   Based on a omptimal spectral condition.
 
 """
-import numpy as np
 
+import numpy as np
+import random
 from numpy.linalg import norm
+import HyperParameter as hp
 from scipy.sparse.linalg import eigs
 
 from .containers import Options
 from .matops import ConvolutionMatrix
+
+param = hp.param_setting
+
+class Initialization(object):
+
+    def __init__(self):
+        self.A = hp.A
+        self.y = hp.y
+        self.k = hp.k
+        self.data_type = hp.data_type
+        self.isComlex = hp.isComplex
+        self.m, self.n = hp.A.shape
+
+
+    def init_random(self):
+
+        if self.data_type == 'Gaussian':
+            x0 = np.random.randn(self.n, 1) + np.random.randn(self.n, 1) * (1j) * self.isComplex
+        elif self.data_type == 'digital':
+            x0 = np.ones(self.n, 1)
+        else:
+            print('There is no such type of data: %s' % self.data_type)
+        if self.k < self.n:
+            indices = random.sample(range(self.n), self.n - self.k)
+            x0[indices] = 0
+        return x0
+
+    def init_spectral(self):
+        pass
+    
+    def init_optimal_spectral(self):
+        pass
+        
 
 
 def init_spectral(A, b0, At=None, is_scaled=False, is_truncated=False, verbose=False):
@@ -32,7 +67,7 @@ def init_spectral(A, b0, At=None, is_scaled=False, is_truncated=False, verbose=F
     truncated spectral method. A recently proposed 'optimal' spectral
     initializer method was proposed and is presented in a different function.
 
-    Parameters:
+    selfeters:
     -------
     A:  ndarray or ConvolutionMatrix.
         This is the (n x m) matrix or the ConvolutionMatrix used to perform all the
@@ -151,7 +186,7 @@ def init_optimal_spectral(A, b0, At=None, is_scaled=False, is_truncated=False, v
     = 1 to m, where T(yi) is a function of yi given in equation (5) of the
     paper cited below.
 
-    Parameters:
+    selfeters:
     -----------
        A:  m x n matrix (or optionally a function handle to a method) that
            returns A*x.

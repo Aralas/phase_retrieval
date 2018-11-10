@@ -7,28 +7,11 @@
 
 import GenerateData as GD
 import HyperParameter as hp
+
 import importlib
 import SearchingDirection as SD
 
 param = hp.param_setting
-
-
-def select_step_chooser(step_chooser):
-    step_module = importlib.import_module('SearchingDirection')
-    if step_chooser in ['BacktrackingLineSearch', 'StepDecline']:
-        step_module_class = getattr(step_module, step_chooser)
-        return step_module_class
-    else:
-        print('There is no such step_chooser %s' % step_chooser)
-
-
-def select_searcher(searcher):
-    searcher_module = importlib.import_module('SearchingDirection')
-    if searcher in ['GradientDescent', 'Newton', 'GuassianNewton', 'SteepestDescent', 'CoordinateDescent']:
-        searcher_module_class = getattr(searcher_module, searcher)
-        return searcher_module_class
-    else:
-        print('There is no such searcher %s' % searcher)
 
 
 def select_algorithm(algorithm):
@@ -40,14 +23,11 @@ def select_algorithm(algorithm):
         print('There is no such algorithm %s' % algorithm)
 
 
-x, A, y, z = GD.generate_data(0)
-loss_func = SD.LossFunction(A, y, z)
-step_class = select_step_chooser(param.step_chooser)
-searcher_class = select_searcher(param.searcher)
-alg_class = select_algorithm(param.algorithm)
-
-step_object = step_class()
-
-alg_object = alg_class(x, A, y, z, param.k, param.epsilon, param.max_iter, 'initializer', searcher)
-
-reconstruct_error, measurement_error = alg_object.solver()
+for experiment_i in range(param.trial_num):
+    seed = experiment_i
+    x, A, y, z = GD.generate_data(seed)
+    loss_func_object = SD.LossFunction(A, y, z)
+    alg_class = select_algorithm(param.algorithm)
+    alg_object = alg_class(x, A, y, z, param.k, param.epsilon, param.max_iter, param.initializer, param.searcher,
+                           param.step_chooser)
+    reconstruct_error, measurement_error = alg_object.solver()
