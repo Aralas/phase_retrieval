@@ -19,22 +19,22 @@ import numpy as np
 import random
 from numpy.linalg import norm
 import HyperParameter as hp
-from scipy.sparse.linalg import eigs
-
-from .containers import Options
-from .matops import ConvolutionMatrix
+# from scipy.sparse.linalg import eigs
+#
+# from .containers import Options
+# from .matops import ConvolutionMatrix
 
 param = hp.param_setting
 
 class Initialization(object):
 
-    def __init__(self):
-        self.A = hp.A
-        self.y = hp.y
-        self.k = hp.k
-        self.data_type = hp.data_type
-        self.isComlex = hp.isComplex
-        self.m, self.n = hp.A.shape
+    def __init__(self, A, y):
+        self.A = A
+        self.y = y
+        self.k = param.k
+        self.data_type = param.data_type
+        self.isComplex = param.isComplex
+        self.m, self.n = A.shape
 
 
     def init_random(self):

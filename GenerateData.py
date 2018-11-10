@@ -44,6 +44,6 @@ def generate_data(seed):
         indices = random.sample(range(param.n), param.n - param.k)
         x[indices] = 0
     A = np.random.randn(param.m, param.n) + np.random.randn(param.m, param.n) * (1j) * param.isComplex
-    y = A.dot(x)
+    y = abs(A.dot(x))
     z = np.power(y, 2)
     return x, A, y, z

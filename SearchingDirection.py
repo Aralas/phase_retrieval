@@ -21,8 +21,9 @@ class LossFunction(object):
 
     def gradient(self, x_hat):
         z_hat = self.A.dot(x_hat) ** 2
-        func = lambda i: np.dot(self.A[i].reshape(-1, 1), self.A[i].reshape(1, -1))
-        grad = 2 * (z_hat - self.z) * np.dot(np.mean([func(i) for i in range(len(self.A))], axis=0), u)
+        b = z_hat - self.z
+        func = lambda i: b[i] * np.dot(self.A[i].reshape(-1, 1), self.A[i].reshape(1, -1))
+        grad = 2 * np.dot(np.mean([func(i) for i in range(len(self.A))], axis=0), x_hat)
         return grad
 
 

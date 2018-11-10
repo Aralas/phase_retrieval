@@ -17,7 +17,7 @@ Algorithms:
 """
 
 import numpy as np
-
+import HyperParameter as hp
 import Initialization
 import SearchingDirection
 
@@ -40,7 +40,7 @@ class PhaseRetrieval(object):
     def reconstruct_error(self, x0):
         # solve for solution:  alpha * x = x0
         xt = self.x.transpose()
-        alpha = np.dot(xt, x0) / np.dot(xt, x)
+        alpha = np.dot(xt, x0) / np.dot(xt, self.x)
         x = alpha * self.x
         error = np.linalg.norm(x0 - x, 2) / np.linalg.norm(x, 2)
         return error
@@ -51,7 +51,7 @@ class PhaseRetrieval(object):
         return error
 
     def select_initialization(self, initializer):
-        init_object = Initialization.Initialization()
+        init_object = Initialization.Initialization(self.A, self.y)
         if initializer in ['init_random', 'init_spectral', 'init_optimal_spectral']:
             init_func = getattr(init_object, initializer)
             return init_func
@@ -81,6 +81,7 @@ class GD_PR(PhaseRetrieval):
         PhaseRetrieval.__init__(self, x, A, y, z, k, epsilon, max_iter, initializer, searcher, step_chooser)
 
     def solver(self):
+
         init_func = self.select_initialization(self.initializer)
         step_func = self.select_step_chooser(self.step_chooser)
         searcher_func = self.select_searcher(self.searcher)
@@ -89,9 +90,12 @@ class GD_PR(PhaseRetrieval):
         recon_error = [self.reconstruct_error(x0)]
         meas_error = [self.measurement_error(x0)]
         for iteration in range(self.max_iter):
-            delta_x = -1*self.loss_func.gradient(x0)
+            delta_x = -1 * self.loss_func.gradient(x0)
             step = step_func(x0, delta_x, iteration)
             x0 = searcher_func(x0, delta_x, step)
+            if self.k < self.n:
+                x_sort_index = abs(x0).argsort(axis=0)
+                x0[x_sort_index[0:(self.n - self.k), 0]] = 0
             recon_error.append(self.reconstruct_error(x0))
             meas_error.append(self.measurement_error(x0))
             if recon_error[-1] < self.epsilon or meas_error[-1] < self.epsilon:

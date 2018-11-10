@@ -15,7 +15,7 @@ param = hp.param_setting
 
 
 def select_algorithm(algorithm):
-    alg_module = importlib.import_module('Algorithm')
+    alg_module = importlib.import_module('.', 'Algorithms')
     if algorithm in ['GD_PR', 'N_PR', 'GN_PR', 'SP_PR', 'HTP_PR', 'IHT_PR', 'OMP_PR']:
         alg_module_class = getattr(alg_module, algorithm)
         return alg_module_class
@@ -31,3 +31,4 @@ for experiment_i in range(param.trial_num):
     alg_object = alg_class(x, A, y, z, param.k, param.epsilon, param.max_iter, param.initializer, param.searcher,
                            param.step_chooser)
     reconstruct_error, measurement_error = alg_object.solver()
+    print(reconstruct_error[-1])
