@@ -49,11 +49,13 @@ Parameters:
 
 class ParameterSetting(object):
 
-    def __init__(self, n, m, k, isComplex, trial_num, algorithm, data_type, step_chooser, searcher):
+    def __init__(self, n, m, k, epsilon, isComplex, trial_num, max_iter, algorithm, data_type, step_chooser, searcher):
         self.n = n
         self.m = m
         self.k = k
+        self.epsilon = epsilon
         self.isComplex = isComplex
+        self.max_iter = max_iter
         self.trial_num = trial_num
         self.algorithm = algorithm
         self.data_type = data_type
@@ -61,6 +63,6 @@ class ParameterSetting(object):
         self.searcher = searcher
 
 
-param_setting = ParameterSetting(n=100, m=200, k=10, isComplex=True, trial_num=500, algorithm='GD_PR',
-                                 data_type='Gaussian', step_chooser='BacktrackingLineSearch',
+param_setting = ParameterSetting(n=100, m=200, k=10, epsilon=0.001, isComplex=False, trial_num=500, max_iter=3000,
+                                 algorithm='GD_PR', step_chooser='BacktrackingLineSearch', data_type='Gaussian',
                                  searcher='GradientDescent')

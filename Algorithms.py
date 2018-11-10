@@ -20,16 +20,17 @@ import numpy as np
 
 
 class PhaseRetrieval(object):
-    def __init__(self, x, A, y, z, k, trial_num, initializer, optimizer):
+    def __init__(self, x, A, y, z, k, epsilon, initializer, max_iter, searcher):
         self.x = x
         self.A = A
         self.y = y
         self.z = z
-        (self.m, self.n) = A.shape
+        self.m, self.n = A.shape
         self.k = k
-        self.trial_num = trial_num
+        self.epsilon = epsilon
+        self.max_iter = max_iter
         self.initializer = initializer
-        self.optimizer = optimizer
+        self.searcher = searcher
 
     def reconstruct_error(self, x0):
         # solve for solution:  alpha * x = x0
@@ -46,14 +47,26 @@ class PhaseRetrieval(object):
 
 
 class GD_PR(PhaseRetrieval):
+
+    def __init__(self, x, A, y, z, k, epsilon, max_iter, initializer, searcher):
+        PhaseRetrieval.__init__(self, x, A, y, z, k, epsilon, max_iter, initializer, searcher)
+
     def solver(self):
-        for iteration in range(self.trial_num):
-            pass
+        x0 = self.initializer.get_initialization(self.y, self.A)    # 还没定义
+        recon_error = [self.reconstruct_error(x0)]
+        meas_error = [self.measurement_error(x0)]
+        for iteration in range(self.max_iter):
+            x0 = self.searcher.searching()
+            recon_error.append(self.reconstruct_error(x0))
+            meas_error.append(self.measurement_error(x0))
+            if recon_error[-1] < self.epsilon or meas_error[-1] < self.epsilon:
+                return recon_error, meas_error
+
 
 
 class N_PR(PhaseRetrieval):
     def solver(self):
-        for iteration in range(self.trial_num):
+        for iteration in range(self.max_iter):
             pass
 
 

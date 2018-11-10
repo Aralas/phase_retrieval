@@ -28,14 +28,14 @@ import HyperParameter as hp
 import numpy as np
 import random
 
-param = hp.param_settings
+param = hp.param_setting
 
 
-def generateData():
-    # random.seed(seed)
-    # np.random.seed(seed)
+def generate_data(seed):
+    random.seed(seed)
+    np.random.seed(seed)
     if param.data_type == 'Gaussian':
-        x = np.random.randn(param.n, 1) + np.random.randn(n, 1) * (1j) * param.isComplex
+        x = np.random.randn(param.n, 1) + np.random.randn(param.n, 1) * (1j) * param.isComplex
     elif param.data_type == 'digital':
         x = np.ones(param.n, 1)
     else:
