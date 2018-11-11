@@ -81,7 +81,8 @@ class Searcher(LossFunction):
             delta_x = -1 * np.dot(np.array(np.mat(hess).I), grad)
         else:
             delta_x = -1 * grad
-        step = step_func(x_hat, delta_x, iteration, k)
+        # step = step_func(x_hat, delta_x, iteration, k)
+        step = 10
         x_new = x_hat + step * delta_x
         return x_new
 
