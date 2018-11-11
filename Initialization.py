@@ -18,22 +18,20 @@ init_optimal_spectral   Based on a omptimal spectral condition.
 import numpy as np
 import random
 from numpy.linalg import norm
-import HyperParameter as hp
 # from scipy.sparse.linalg import eigs
 #
 # from .containers import Options
 # from .matops import ConvolutionMatrix
 
-param = hp.param_setting
 
 class Initialization(object):
 
-    def __init__(self, A, y):
+    def __init__(self, A, y, k, data_type, isComplex):
         self.A = A
         self.y = y
-        self.k = param.k
-        self.data_type = param.data_type
-        self.isComplex = param.isComplex
+        self.k = k
+        self.data_type = data_type
+        self.isComplex = isComplex
         self.m, self.n = A.shape
 
 

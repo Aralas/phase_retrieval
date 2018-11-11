@@ -5,7 +5,7 @@
 @time:2018/11/914:50
 
 This script will generate 1D signal for Phase Retrieval
-based on hyper parameters defined in HyperParameter.py.
+based on hyper parameters defined in RunTest.py.
 
 Parameters:
     x: 1D signal
@@ -24,14 +24,11 @@ Parameters:
                 'digital' 1D 0-1 vector (k is the number of 1)
 """
 
-import HyperParameter as hp
 import numpy as np
 import random
 
-param = hp.param_setting
 
-
-def generate_data(seed):
+def generate_data(seed, param):
     random.seed(seed)
     np.random.seed(seed)
     if param.data_type == 'Gaussian':

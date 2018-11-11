@@ -34,30 +34,36 @@ class LossFunction(object):
 
 class StepChooser(object):
 
-    def __init__(self, loss_func):
+    def __init__(self, loss_func, k, step_value):
         self.alpha = 0.3
         self.beta = 0.8
         self.loss_func = loss_func
         self.tau = 1000
+        self.k = k
+        self.step_value = step_value
 
-    def generate_x(self, x, k, step, delta_x):
-        x_new = x + step * delta_x
-        if k < len(x):
-            x_sort_index = abs(x_new).argsort(axis=0)
-            x_new[x_sort_index[0:(len(x) - k), 0]] = 0
-        return x_new
+    # def generate_x(self, x, k, step, delta_x):
+    #     x_new = x + step * delta_x
+    #     if k < len(x):
+    #         x_sort_index = abs(x_new).argsort(axis=0)
+    #         x_new[x_sort_index[0:(len(x) - k), 0]] = 0
+    #     return x_new
 
-    def backtracking_line_search(self, x_hat, delta_x, iter, k):
+    def backtracking_line_search(self, x_hat, delta_x):
         step = 1
-        while self.loss_func.f(self.generate_x(x_hat, k, step, delta_x)) >= (
+        # while self.loss_func.f(self.generate_x(x_hat, self.k, step, delta_x)) >= (
+        #         self.loss_func.f(x_hat) + self.alpha * step * np.dot(self.loss_func.gradient(x_hat).transpose(),
+        #                                                              delta_x)):
+        while self.loss_func.f(x + step * delta_x) >= (
                 self.loss_func.f(x_hat) + self.alpha * step * np.dot(self.loss_func.gradient(x_hat).transpose(),
                                                                      delta_x)):
             step = step * self.beta
         return step
 
-    def constant_step(self, x_hat, delta_x, iter, k):
-        # return min(0.001, (1 - math.exp(-1 * iter / self.tau)) / 2)
-        return 0.001
+    def constant_step(self, x_hat, delta_x):
+
+        return self.step_value
+
 
 
 
@@ -68,13 +74,13 @@ class Searcher(LossFunction):
     def __init__(self, A, y, z):
         LossFunction.__init__(self, A, y, z)
 
-    def gradient_descent(self, x_hat, step_func, iteration, k):
+    def gradient_descent(self, x_hat, step_func):
         delta_x = -1 * self.gradient(x_hat)
-        step = step_func(x_hat, delta_x, iteration, k)
+        step = step_func(x_hat, delta_x)
         x_new = x_hat + step * delta_x
         return x_new
 
-    def newton(self, x_hat, step_func, iteration, k):
+    def newton(self, x_hat, step_func):
         hess = self.hessian(x_hat)
         grad = self.gradient(x_hat)
         if np.linalg.det(hess) != 0:
@@ -82,7 +88,7 @@ class Searcher(LossFunction):
         else:
             delta_x = -1 * grad
         # step = step_func(x_hat, delta_x, iteration, k)
-        step = 10
+        step = step_func(x_hat, delta_x)
         x_new = x_hat + step * delta_x
         return x_new
 
