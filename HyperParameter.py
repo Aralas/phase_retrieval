@@ -64,6 +64,6 @@ class ParameterSetting(object):
         self.initializer = initializer
 
 
-param_setting = ParameterSetting(n=100, m=400, k=8, epsilon=0.001, isComplex=False, trial_num=100, max_iter=3000,
+param_setting = ParameterSetting(n=100, m=400, k=8, epsilon=0.001, isComplex=False, trial_num=500, max_iter=3000,
                                  algorithm='GD_PR', step_chooser='constant_step', data_type='Gaussian',
                                  searcher='gradient_descent', initializer='init_random')
