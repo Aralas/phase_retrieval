@@ -7,17 +7,16 @@
 
 import GenerateData as GD
 import HyperParameter as hp
-import importlib
 import SearchingDirection as SD
 import time
+import Algorithms
 
 param = hp.param_setting
 
 
 def select_algorithm(algorithm):
-    alg_module = importlib.import_module('.', 'Algorithms')
     if algorithm in ['GD_PR', 'N_PR', 'GN_PR', 'SP_PR', 'HTP_PR', 'IHT_PR', 'OMP_PR']:
-        alg_module_class = getattr(alg_module, algorithm)
+        alg_module_class = getattr(Algorithms, algorithm)
         return alg_module_class
     else:
         print('There is no such algorithm %s' % algorithm)
