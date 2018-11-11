@@ -20,6 +20,7 @@ import numpy as np
 import HyperParameter as hp
 import Initialization
 import SearchingDirection
+import math
 
 
 class PhaseRetrieval(object):
@@ -41,6 +42,8 @@ class PhaseRetrieval(object):
         # solve for solution:  alpha * x = x0
         xt = self.x.transpose()
         alpha = np.dot(xt, x0) / np.dot(xt, self.x)
+        if alpha == 0:
+            alpha = 1
         x = alpha * self.x
         error = np.linalg.norm(x0 - x, 2) / np.linalg.norm(x, 2)
         return error
@@ -60,7 +63,7 @@ class PhaseRetrieval(object):
 
     def select_step_chooser(self, step_chooser):
         step_object = SearchingDirection.StepChooser(self.loss_func)
-        if step_chooser in ['backtracking_line_search', 'step_decline']:
+        if step_chooser in ['backtracking_line_search', 'constant_step']:
             step_chooser_func = getattr(step_object, step_chooser)
             return step_chooser_func
         else:
@@ -81,7 +84,6 @@ class GD_PR(PhaseRetrieval):
         PhaseRetrieval.__init__(self, x, A, y, z, k, epsilon, max_iter, initializer, searcher, step_chooser)
 
     def solver(self):
-
         init_func = self.select_initialization(self.initializer)
         step_func = self.select_step_chooser(self.step_chooser)
         searcher_func = self.select_searcher(self.searcher)
@@ -89,23 +91,46 @@ class GD_PR(PhaseRetrieval):
         x0 = init_func()
         recon_error = [self.reconstruct_error(x0)]
         meas_error = [self.measurement_error(x0)]
+
+        success = False
         for iteration in range(self.max_iter):
-            delta_x = -1 * self.loss_func.gradient(x0)
-            step = step_func(x0, delta_x, iteration)
-            x0 = searcher_func(x0, delta_x, step)
+            x0 = searcher_func(x0, step_func, iteration, self.k)
             if self.k < self.n:
                 x_sort_index = abs(x0).argsort(axis=0)
                 x0[x_sort_index[0:(self.n - self.k), 0]] = 0
             recon_error.append(self.reconstruct_error(x0))
             meas_error.append(self.measurement_error(x0))
             if recon_error[-1] < self.epsilon or meas_error[-1] < self.epsilon:
-                return recon_error, meas_error
-
+                success = True
+                break
+        return recon_error, meas_error, iteration, success
 
 class N_PR(PhaseRetrieval):
+
+    def __init__(self, x, A, y, z, k, epsilon, max_iter, initializer, searcher, step_chooser):
+        PhaseRetrieval.__init__(self, x, A, y, z, k, epsilon, max_iter, initializer, searcher, step_chooser)
+
     def solver(self):
+        init_func = self.select_initialization(self.initializer)
+        step_func = self.select_step_chooser(self.step_chooser)
+        searcher_func = self.select_searcher(self.searcher)
+
+        x0 = init_func()
+        recon_error = [self.reconstruct_error(x0)]
+        meas_error = [self.measurement_error(x0)]
+
+        success = False
         for iteration in range(self.max_iter):
-            pass
+            x0 = searcher_func(x0, step_func, iteration, self.k)
+            if self.k < self.n:
+                x_sort_index = abs(x0).argsort(axis=0)
+                x0[x_sort_index[0:(self.n - self.k), 0]] = 0
+            recon_error.append(self.reconstruct_error(x0))
+            meas_error.append(self.measurement_error(x0))
+            if recon_error[-1] < self.epsilon or meas_error[-1] < self.epsilon:
+                success = True
+                break
+        return recon_error, meas_error, iteration, success
 
 
 class SP_PR(PhaseRetrieval):
