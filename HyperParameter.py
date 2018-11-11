@@ -31,15 +31,15 @@ Parameters:
             'digital' 1D 0-1 vector (k is the number of 1)
 
     searcher:
-            GradientDescent
-            Newton
-            GuassianNewton
-            SteepestDescent
-            CoordinateDescent
+            gradient_descent
+            newton
+            guassian_newton
+            steepest_descent
+            coordinate_descent
 
     step_chooser:
-            BacktrackingLineSearch
-            StepDecline
+            backtracking_line_search
+            constant_step
 
     initializer:
 
@@ -64,6 +64,6 @@ class ParameterSetting(object):
         self.initializer = initializer
 
 
-param_setting = ParameterSetting(n=100, m=400, k=10, epsilon=0.001, isComplex=False, trial_num=100, max_iter=3000,
-                                 algorithm='N_PR', step_chooser='constant_step', data_type='Gaussian',
+param_setting = ParameterSetting(n=100, m=400, k=8, epsilon=0.001, isComplex=False, trial_num=100, max_iter=3000,
+                                 algorithm='GD_PR', step_chooser='constant_step', data_type='Gaussian',
                                  searcher='gradient_descent', initializer='init_random')

@@ -41,4 +41,4 @@ for experiment_i in range(param.trial_num):
         end_time - start_time))
 end_time_all = time.time()
 
-print('time for %d experiments is %f' % (param.trial_num, end_time_all - start_time_all))
+print('time for %d experiments is %f, success rate is %f' % (param.trial_num, end_time_all - start_time_all, success_exp / param.trial_num))
