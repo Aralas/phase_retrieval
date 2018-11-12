@@ -104,8 +104,8 @@ def run_experiment(param):
 
 record = open('record.txt', 'a+')
 # record.write('n, m, k, step, success rate, time\n')
-for k in [1, 2, 4, 6, 8, 10, 15, 20, 25, 30, 40, 50, 60, 70, 80, 90, 100]:
-    for step_value in [0.01, 0.003, 0.001, 0.0003, 0.0001]:
+for k in [8, 10, 15, 20, 25, 30, 40, 50, 60, 70, 80, 90, 100]:
+    for step_value in [0.1, 0.03, 0.01, 0.003, 0.001]:
         param_setting = ParameterSetting(n=100, m=400, k=k, epsilon=0.001, step_value=step_value,
                                          isComplex=False, trial_num=500, max_iter=3000, algorithm='GD_PR',
                                          step_chooser='constant_step', data_type='Gaussian',
