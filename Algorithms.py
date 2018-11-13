@@ -50,7 +50,7 @@ class PhaseRetrieval(object):
 
     def measurement_error(self, x0):
         y0 = abs(self.A.dot(x0))
-        error = np.linalg.norm(y0 - self.y, 2)
+        error = np.linalg.norm(y0 - self.y, 2) / np.linalg.norm(self.y, 2)
         return error
 
     def select_initialization(self, initializer):

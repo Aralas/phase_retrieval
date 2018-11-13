@@ -106,6 +106,10 @@ record = open('record.txt', 'a+')
 # record.write('n, m, k, step, success rate, time\n')
 
 
+
+
+######## experiment 2 ########
+
 for k in [6, 8, 10]:
     for step_value in [0.02, 0.015, 0.008, 0.005]:
         print('*' * 10, k, step_value, '*' * 10)
@@ -152,5 +156,9 @@ for k in [70, 80, 90, 100]:
                                          step_chooser='constant_step', data_type='Gaussian',
                                          searcher='gradient_descent', initializer='init_random')
         run_experiment(param_setting)
+
+
+
+
 
 record.close()
