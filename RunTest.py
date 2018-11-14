@@ -101,93 +101,108 @@ def run_experiment(param):
     record.flush()
 
 
-record = open('record.txt', 'a+')
+record = open('record1.txt', 'a+')
 # record.write('n, m, k, step, success rate, time\n')
 
 
+m = 400
 
-
-######## experiment 2 ########
-
-# for k in [10]:
-#     for step_value in [0.008, 0.006, 0.004]:
-#         print('*' * 10, k, step_value, '*' * 10)
-#         param_setting = ParameterSetting(n=100, m=400, k=k, epsilon=0.001, step_value=step_value,
-#                                          isComplex=False, trial_num=500, max_iter=3000, algorithm='GD_PR',
-#                                          step_chooser='constant_step', data_type='Gaussian',
-#                                          searcher='gradient_descent', initializer='init_random')
-#         run_experiment(param_setting)
-#
-# for k in [15, 20]:
-#     for step_value in [0.004, 0.002]:
-#         print('*' * 10, k, step_value, '*' * 10)
-#         param_setting = ParameterSetting(n=100, m=400, k=k, epsilon=0.001, step_value=step_value,
-#                                          isComplex=False, trial_num=500, max_iter=3000, algorithm='GD_PR',
-#                                          step_chooser='constant_step', data_type='Gaussian',
-#                                          searcher='gradient_descent', initializer='init_random')
-#         run_experiment(param_setting)
-#
-# for k in [25, 30]:
-#     for step_value in [0.004, 0.0025, 0.002]:
-#         print('*' * 10, k, step_value, '*' * 10)
-#         param_setting = ParameterSetting(n=100, m=400, k=k, epsilon=0.001, step_value=step_value,
-#                                          isComplex=False, trial_num=500, max_iter=3000, algorithm='GD_PR',
-#                                          step_chooser='constant_step', data_type='Gaussian',
-#                                          searcher='gradient_descent', initializer='init_random')
-#         run_experiment(param_setting)
-#
-# for k in [40, 50, 60]:
-#     for step_value in [0.0015, 0.0008, 0.0005]:
-#         print('*' * 10, k, step_value, '*' * 10)
-#         param_setting = ParameterSetting(n=100, m=400, k=k, epsilon=0.001, step_value=step_value,
-#                                          isComplex=False, trial_num=500, max_iter=3000, algorithm='GD_PR',
-#                                          step_chooser='constant_step', data_type='Gaussian',
-#                                          searcher='gradient_descent', initializer='init_random')
-#         run_experiment(param_setting)
-#
-#
-#
-# for k in [70, 80, 90]:
-#     for step_value in [0.0015, 0.0008, 0.0006, 0.0004]:
-#         print('*' * 10, k, step_value, '*' * 10)
-#         param_setting = ParameterSetting(n=100, m=400, k=k, epsilon=0.001, step_value=step_value,
-#                                          isComplex=False, trial_num=500, max_iter=3000, algorithm='GD_PR',
-#                                          step_chooser='constant_step', data_type='Gaussian',
-#                                          searcher='gradient_descent', initializer='init_random')
-#         run_experiment(param_setting)
-
-
-# for k in [10]:
-#     for step_value in [0.01]:
-#         for m in [400]:
-#             print('*' * 10,'k %d, step %f, m %d' %(k, step_value, m), '*' * 10)
-#             param_setting = ParameterSetting(n=100, m=m, k=k, epsilon=0.001, step_value=step_value,
-#                                              isComplex=False, trial_num=100, max_iter=3000, algorithm='GD_PR',
-#                                              step_chooser='constant_step', data_type='Gaussian',
-#                                              searcher='gradient_descent', initializer='init_random')
-#             run_experiment(param_setting)
-#
-#
-# for k in [10]:
-#     for step_value in [0.003, 0.001, 0.0003, 0.0001]:
-#         for m in [60, 80, 100, 150, 200, 250, 300, 350, 400]:
-#             print('*' * 10,'k %d, step %f, m %d' %(k, step_value, m), '*' * 10)
-#             param_setting = ParameterSetting(n=100, m=m, k=k, epsilon=0.001, step_value=step_value,
-#                                              isComplex=False, trial_num=100, max_iter=3000, algorithm='GD_PR',
-#                                              step_chooser='constant_step', data_type='Gaussian',
-#                                              searcher='gradient_descent', initializer='init_random')
-#             run_experiment(param_setting)
-
-for k in [10]:
-    for step_value in [0.008]:
+for k in [6, 8]:
+    for step_value in [0.01, 0.008, 0.006]:
         print('*' * 10, k, step_value, '*' * 10)
         param_setting = ParameterSetting(n=100, m=400, k=k, epsilon=0.001, step_value=step_value,
-                                         isComplex=False, trial_num=100, max_iter=3000, algorithm='GD_PR',
+                                         isComplex=False, trial_num=500, max_iter=3000, algorithm='GD_PR',
                                          step_chooser='constant_step', data_type='Gaussian',
                                          searcher='gradient_descent', initializer='init_spectral')
         run_experiment(param_setting)
 
+for k in [10]:
+    for step_value in [0.008, 0.006, 0.005]:
+        print('*' * 10, k, step_value, '*' * 10)
+        param_setting = ParameterSetting(n=100, m=400, k=k, epsilon=0.001, step_value=step_value,
+                                         isComplex=False, trial_num=500, max_iter=3000, algorithm='GD_PR',
+                                         step_chooser='constant_step', data_type='Gaussian',
+                                         searcher='gradient_descent', initializer='init_spectral')
+        run_experiment(param_setting)
 
+for k in [15]:
+    for step_value in [0.006, 0.005, 0.004]:
+        print('*' * 10, k, step_value, '*' * 10)
+        param_setting = ParameterSetting(n=100, m=400, k=k, epsilon=0.001, step_value=step_value,
+                                         isComplex=False, trial_num=500, max_iter=3000, algorithm='GD_PR',
+                                         step_chooser='constant_step', data_type='Gaussian',
+                                         searcher='gradient_descent', initializer='init_spectral')
+        run_experiment(param_setting)
 
+for k in [20]:
+    for step_value in [0.005, 0.004, 0.003]:
+        print('*' * 10, k, step_value, '*' * 10)
+        param_setting = ParameterSetting(n=100, m=400, k=k, epsilon=0.001, step_value=step_value,
+                                         isComplex=False, trial_num=500, max_iter=3000, algorithm='GD_PR',
+                                         step_chooser='constant_step', data_type='Gaussian',
+                                         searcher='gradient_descent', initializer='init_spectral')
+        run_experiment(param_setting)
+
+record.close()
+
+for k in [25]:
+    for step_value in [0.004, 0.003, 0.002]:
+        print('*' * 10, k, step_value, '*' * 10)
+        param_setting = ParameterSetting(n=100, m=400, k=k, epsilon=0.001, step_value=step_value,
+                                         isComplex=False, trial_num=500, max_iter=3000, algorithm='GD_PR',
+                                         step_chooser='constant_step', data_type='Gaussian',
+                                         searcher='gradient_descent', initializer='init_spectral')
+        run_experiment(param_setting)
+
+record.close()
+
+for k in [30, 40]:
+    for step_value in [0.0025, 0.002, 0.0015]:
+        print('*' * 10, k, step_value, '*' * 10)
+        param_setting = ParameterSetting(n=100, m=400, k=k, epsilon=0.001, step_value=step_value,
+                                         isComplex=False, trial_num=500, max_iter=3000, algorithm='GD_PR',
+                                         step_chooser='constant_step', data_type='Gaussian',
+                                         searcher='gradient_descent', initializer='init_spectral')
+        run_experiment(param_setting)
+
+for k in [50]:
+    for step_value in [0.002, 0.0015, 0.001]:
+        print('*' * 10, k, step_value, '*' * 10)
+        param_setting = ParameterSetting(n=100, m=400, k=k, epsilon=0.001, step_value=step_value,
+                                         isComplex=False, trial_num=500, max_iter=3000, algorithm='GD_PR',
+                                         step_chooser='constant_step', data_type='Gaussian',
+                                         searcher='gradient_descent', initializer='init_spectral')
+        run_experiment(param_setting)
+
+record.close()
+
+for k in [60, 70]:
+    for step_value in [0.0015, 0.001, 0.0008]:
+        print('*' * 10, k, step_value, '*' * 10)
+        param_setting = ParameterSetting(n=100, m=400, k=k, epsilon=0.001, step_value=step_value,
+                                         isComplex=False, trial_num=500, max_iter=3000, algorithm='GD_PR',
+                                         step_chooser='constant_step', data_type='Gaussian',
+                                         searcher='gradient_descent', initializer='init_spectral')
+        run_experiment(param_setting)
+
+record.close()
+
+for k in [80, 90]:
+    for step_value in [0.001, 0.0008, 0.0006]:
+        print('*' * 10, k, step_value, '*' * 10)
+        param_setting = ParameterSetting(n=100, m=400, k=k, epsilon=0.001, step_value=step_value,
+                                         isComplex=False, trial_num=500, max_iter=3000, algorithm='GD_PR',
+                                         step_chooser='constant_step', data_type='Gaussian',
+                                         searcher='gradient_descent', initializer='init_spectral')
+        run_experiment(param_setting)
+
+for k in [100]:
+    for step_value in [0.0005, 0.0004, 0.0003]:
+        print('*' * 10, k, step_value, '*' * 10)
+        param_setting = ParameterSetting(n=100, m=400, k=k, epsilon=0.001, step_value=step_value,
+                                         isComplex=False, trial_num=500, max_iter=3000, algorithm='GD_PR',
+                                         step_chooser='constant_step', data_type='Gaussian',
+                                         searcher='gradient_descent', initializer='init_spectral')
+        run_experiment(param_setting)
 
 record.close()
