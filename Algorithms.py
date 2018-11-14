@@ -54,7 +54,7 @@ class PhaseRetrieval(object):
         return error
 
     def select_initialization(self, initializer):
-        init_object = Initialization.Initialization(self.A, self.y, self.param.k, self.param.data_type,
+        init_object = Initialization.Initialization(self.A, self.z, self.param.k, self.param.data_type,
                                                     self.param.isComplex)
         if initializer in ['init_random', 'init_spectral', 'init_optimal_spectral']:
             init_func = getattr(init_object, initializer)

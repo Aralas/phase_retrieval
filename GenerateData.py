@@ -32,7 +32,7 @@ def generate_data(seed, param):
     random.seed(seed)
     np.random.seed(seed)
     if param.data_type == 'Gaussian':
-        x = np.random.randn(param.n, 1) + np.random.randn(param.n, 1) * (1j) * param.isComplex
+        x = np.random.randn(param.n, 1)
     elif param.data_type == 'digital':
         x = np.ones(param.n, 1)
     else:
@@ -40,7 +40,10 @@ def generate_data(seed, param):
     if param.k < param.n:
         indices = random.sample(range(param.n), param.n - param.k)
         x[indices] = 0
-    A = np.random.randn(param.m, param.n) + np.random.randn(param.m, param.n) * (1j) * param.isComplex
+    A = np.random.randn(param.m, param.n)
+    if param.isComplex:
+        x = x + np.random.randn(param.n, 1) * (1j)
+        A = A + np.random.randn(param.m, param.n) * (1j)
     y = abs(A.dot(x))
     z = np.power(y, 2)
     return x, A, y, z

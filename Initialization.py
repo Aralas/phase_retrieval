@@ -18,7 +18,7 @@ init_optimal_spectral   Based on a omptimal spectral condition.
 import numpy as np
 import random
 from numpy.linalg import norm
-# from scipy.sparse.linalg import eigs
+from scipy.sparse.linalg import eigs
 #
 # from .containers import Options
 # from .matops import ConvolutionMatrix
@@ -26,9 +26,9 @@ from numpy.linalg import norm
 
 class Initialization(object):
 
-    def __init__(self, A, y, k, data_type, isComplex):
+    def __init__(self, A, z, k, data_type, isComplex):
         self.A = A
-        self.y = y
+        self.z = z
         self.k = k
         self.data_type = data_type
         self.isComplex = isComplex
@@ -49,7 +49,13 @@ class Initialization(object):
         return x0
 
     def init_spectral(self):
-        pass
+        scale_value = np.sqrt(self.n * sum(self.z) / np.sum(self.A ** 2))
+        alpha = 3
+        idx = np.abs(self.z) <= alpha ** 2 * np.mean(self.z)
+        Y = 1 / self.m * np.dot(self.A.transpose(), self.A * self.z * idx)
+        [eval, x0] = eigs(Y, k=1, which='LR')
+        x0 = x0 * scale_value / norm(x0)
+        return x0
     
     def init_optimal_spectral(self):
         pass
