@@ -143,7 +143,7 @@ for k in [20]:
                                          searcher='gradient_descent', initializer='init_spectral')
         run_experiment(param_setting)
 
-record.close()
+
 
 for k in [25]:
     for step_value in [0.004, 0.003, 0.002]:
@@ -154,7 +154,7 @@ for k in [25]:
                                          searcher='gradient_descent', initializer='init_spectral')
         run_experiment(param_setting)
 
-record.close()
+
 
 for k in [30, 40]:
     for step_value in [0.0025, 0.002, 0.0015]:
@@ -174,7 +174,7 @@ for k in [50]:
                                          searcher='gradient_descent', initializer='init_spectral')
         run_experiment(param_setting)
 
-record.close()
+
 
 for k in [60, 70]:
     for step_value in [0.0015, 0.001, 0.0008]:
@@ -185,7 +185,7 @@ for k in [60, 70]:
                                          searcher='gradient_descent', initializer='init_spectral')
         run_experiment(param_setting)
 
-record.close()
+
 
 for k in [80, 90]:
     for step_value in [0.001, 0.0008, 0.0006]:
