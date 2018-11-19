@@ -74,13 +74,13 @@ class Searcher(LossFunction):
     def __init__(self, A, y, z):
         LossFunction.__init__(self, A, y, z)
 
-    def gradient_descent(self, x_hat, step_func):
+    def gradient_descent(self, x_hat, step_func, support):
         delta_x = -1 * self.gradient(x_hat)
         step = step_func(x_hat, delta_x)
         x_new = x_hat + step * delta_x
         return x_new
 
-    def newton(self, x_hat, step_func):
+    def newton(self, x_hat, step_func, support):
         hess = self.hessian(x_hat)
         grad = self.gradient(x_hat)
         if np.linalg.det(hess) != 0:
@@ -92,8 +92,12 @@ class Searcher(LossFunction):
         x_new = x_hat + step * delta_x
         return x_new
 
-    def gaussian_newton(self, x_hat, delta_x, step):
-        pass
+    def gauss_newton(self, x_hat, step_func, support):
+        As = self.A[:, support]
+        xs = x_hat[support]
+        y_hat = np.dot(As, xs)
+        J = 2 * y_hat * self.A
+        return x_new
 
     def steepest_descent(self, x_hat, delta_x, step):
         pass
