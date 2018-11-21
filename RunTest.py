@@ -101,26 +101,16 @@ def run_experiment(param):
     record.flush()
 
 
-record = open('record2.txt', 'a+')
+record = open('record_N_m.txt', 'a+')
 # record.write('n, m, k, step, success rate, time\n')
 
 
-m = 400
+k = 10
 
-for k in [6, 8, 15, 25]:
-    for step_value in [200, 150, 120, 100, 80, 60, 40]:
+for m in [60, 80, 100, 150, 200, 250, 300, 350]:
+    for step_value in [250, 200, 150, 100, 50]:
         print('*' * 10, k, step_value, '*' * 10)
-        param_setting = ParameterSetting(n=100, m=400, k=k, epsilon=0.001, step_value=step_value,
-                                         isComplex=False, trial_num=500, max_iter=3000, algorithm='N_PR',
-                                         step_chooser='constant_step', data_type='Gaussian',
-                                         searcher='newton', initializer='init_spectral')
-        run_experiment(param_setting)
-
-
-for k in [100, 90, 80, 70, 60, 50, 40, 30, 25, 20, 15, 10, 8, 6]:
-    for step_value in [250, 240, 230, 220, 210, 190, 180, 170, 160, 140, 130, 110, 90]:
-        print('*' * 10, k, step_value, '*' * 10)
-        param_setting = ParameterSetting(n=100, m=400, k=k, epsilon=0.001, step_value=step_value,
+        param_setting = ParameterSetting(n=100, m=m, k=k, epsilon=0.001, step_value=step_value,
                                          isComplex=False, trial_num=500, max_iter=3000, algorithm='N_PR',
                                          step_chooser='constant_step', data_type='Gaussian',
                                          searcher='newton', initializer='init_spectral')
