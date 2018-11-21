@@ -105,11 +105,11 @@ record = open('record_N_m.txt', 'a+')
 # record.write('n, m, k, step, success rate, time\n')
 
 
-k = 10
+k = 100
 
 for m in [100, 150, 200, 250, 300, 350]:
     for step_value in [250, 200, 150, 100, 50]:
-        print('*' * 10, k, step_value, '*' * 10)
+        print('*' * 10, 'k %d, m %d, step %d' %(k, m, step_value), '*' * 10)
         param_setting = ParameterSetting(n=100, m=m, k=k, epsilon=0.001, step_value=step_value,
                                          isComplex=False, trial_num=500, max_iter=3000, algorithm='N_PR',
                                          step_chooser='constant_step', data_type='Gaussian',
