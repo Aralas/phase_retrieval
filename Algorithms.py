@@ -122,6 +122,7 @@ class N_PR(PhaseRetrieval):
 
         success = False
         for iteration in range(self.param.max_iter):
+            support = None    ################
             x0 = searcher_func(x0, step_func, support)
             if self.param.k < self.param.n:
                 x_sort_index = abs(x0).argsort(axis=0)

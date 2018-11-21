@@ -107,7 +107,7 @@ record = open('record_N_m.txt', 'a+')
 
 k = 10
 
-for m in [60, 80, 100, 150, 200, 250, 300, 350]:
+for m in [100, 150, 200, 250, 300, 350]:
     for step_value in [250, 200, 150, 100, 50]:
         print('*' * 10, k, step_value, '*' * 10)
         param_setting = ParameterSetting(n=100, m=m, k=k, epsilon=0.001, step_value=step_value,
