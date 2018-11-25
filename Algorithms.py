@@ -18,7 +18,7 @@ Algorithms:
 
 import numpy as np
 import Initialization
-import SearchingDirection
+import Projection
 import math
 
 
@@ -30,28 +30,7 @@ class PhaseRetrieval(object):
         self.z = z
         self.m, self.n = A.shape
         self.param = param
-        # self.k = param.k
-        # self.epsilon = param.epsilon
-        # self.max_iter = param.max_iter
-        # self.initializer = param.initializer
-        # self.searcher = param.searcher
-        # self.step_chooser = param.step_chooser
-        self.loss_func = SearchingDirection.LossFunction(A, y, z)
-
-    def reconstruct_error(self, x0):
-        # solve for solution:  alpha * x = x0
-        xt = self.x.transpose()
-        alpha = np.dot(xt, x0) / np.dot(xt, self.x)
-        if alpha == 0:
-            alpha = 1
-        x = alpha * self.x
-        error = np.linalg.norm(x0 - x, 2) / np.linalg.norm(x, 2)
-        return error
-
-    def measurement_error(self, x0):
-        y0 = abs(self.A.dot(x0))
-        error = np.linalg.norm(y0 - self.y, 2) / np.linalg.norm(self.y, 2)
-        return error
+        # self.loss_func = Projection.LossFunction(self.x, A, y, z, param)
 
     def select_initialization(self, initializer):
         init_object = Initialization.Initialization(self.A, self.z, self.param.k, self.param.data_type,
@@ -63,20 +42,20 @@ class PhaseRetrieval(object):
             print('There is no such initializer %s' % initializer)
 
     def select_step_chooser(self, step_chooser):
-        step_object = SearchingDirection.StepChooser(self.loss_func, self.param.k, self.param.step_value)
+        step_object = Projection.StepChooser(self.param.k, self.param.step_value)
         if step_chooser in ['backtracking_line_search', 'constant_step']:
             step_chooser_func = getattr(step_object, step_chooser)
             return step_chooser_func
         else:
             print('There is no such step_chooser %s' % step_chooser)
 
-    def select_searcher(self, searcher):
-        searcher_object = SearchingDirection.Searcher(self.A, self.y, self.z)
-        if searcher in ['gradient_descent', 'newton', 'guassian_newton', 'steepest_descent', 'coordinate_descent']:
-            searcher_func = getattr(searcher_object, searcher)
-            return searcher_func
+    def select_projection_method(self, projection, support):
+        projection_object = Projection.ProjectionMethod(support, self.x, self.A, self.y, self.z, self.param)
+        if projection in ['gradient_descent', 'newton', 'guassian_newton', 'steepest_descent', 'coordinate_descent']:
+            projection_func = getattr(projection_object, projection)
+            return projection_func
         else:
-            print('There is no such searcher %s' % searcher)
+            print('There is no such projection method %s' % projection)
 
 
 class GD_PR(PhaseRetrieval):
@@ -87,24 +66,13 @@ class GD_PR(PhaseRetrieval):
     def solver(self):
         init_func = self.select_initialization(self.param.initializer)
         step_func = self.select_step_chooser(self.param.step_chooser)
-        searcher_func = self.select_searcher(self.param.searcher)
-
+        projection_func = self.select_projection_method(self.param.projection, np.array(range(self.n)))
         x0 = init_func()
-        recon_error = [self.reconstruct_error(x0)]
-        meas_error = [self.measurement_error(x0)]
 
-        success = False
-        for iteration in range(self.param.max_iter):
-            x0 = searcher_func(x0, step_func)
-            if self.param.k < self.param.n:
-                x_sort_index = abs(x0).argsort(axis=0)
-                x0[x_sort_index[0:(self.param.n - self.param.k), 0]] = 0
-            recon_error.append(self.reconstruct_error(x0))
-            meas_error.append(self.measurement_error(x0))
-            if min(recon_error[-1], meas_error[-1]) < self.param.epsilon:
-                success = True
-                break
+        x_hat, recon_error, meas_error, iteration, success = projection_func(x0, step_func, truncated=True)
+
         return recon_error, meas_error, iteration, success
+
 
 class N_PR(PhaseRetrieval):
 
@@ -114,29 +82,59 @@ class N_PR(PhaseRetrieval):
     def solver(self):
         init_func = self.select_initialization(self.param.initializer)
         step_func = self.select_step_chooser(self.param.step_chooser)
-        searcher_func = self.select_searcher(self.param.searcher)
-
+        projection_func = self.select_projection_method(self.param.projection, np.array(range(self.n)))
         x0 = init_func()
-        recon_error = [self.reconstruct_error(x0)]
-        meas_error = [self.measurement_error(x0)]
 
-        success = False
-        for iteration in range(self.param.max_iter):
-            support = None    ################
-            x0 = searcher_func(x0, step_func, support)
-            if self.param.k < self.param.n:
-                x_sort_index = abs(x0).argsort(axis=0)
-                x0[x_sort_index[0:(self.param.n - self.param.k), 0]] = 0
-            recon_error.append(self.reconstruct_error(x0))
-            meas_error.append(self.measurement_error(x0))
-            if min(recon_error[-1], meas_error[-1]) < self.param.epsilon:
-                success = True
-                break
+        x_hat, recon_error, meas_error, iteration, success = projection_func(x0, step_func, truncated=True)
+
         return recon_error, meas_error, iteration, success
 
+
 class SP_PR(PhaseRetrieval):
+
+    def __init__(self, x, A, y, z, param):
+        PhaseRetrieval.__init__(self, x, A, y, z, param)
+
+    # def obtain_largest_grad_index(self, x_hat, A_subspace):
+    #     projection_object = Projection.ProjectionMethod(self.x, A_subspace, self.y, self.z, self.param)
+    #     grad = projection_object.gradient(x_hat)
+    #     sort_index = np.argsort(-abs(grad), axis=0)
+    #     T_tilde = sort_index[0:self.param.k, :]
+    #     return T_tilde
+
+    def get_projection(self, support, x0, step_func, truncated):
+        projection_func = self.select_projection_method(self.param.projection, support)
+        x_hat, recon_error, meas_error, iteration, success = projection_func(x0, step_func, truncated)
+        return x_hat, recon_error, meas_error, iteration, success
+
+    def gradient_f(self, x_hat):
+        z_hat = self.A.dot(x_hat) ** 2
+        b = z_hat - self.z
+        grad = 2 / len(self.A) * np.dot(np.dot(self.A.transpose(), b * self.A), x_hat)
+        return grad
+
     def solver(self):
-        pass
+        init_func = self.select_initialization(self.param.initializer)
+        step_func = self.select_step_chooser(self.param.step_chooser)
+        x0 = init_func()
+        grad = self.gradient_f(x0)
+        sort_grad_index = np.argsort(-abs(grad), axis=0)
+        T0 = sort_grad_index[0:self.param.k, :].reshape(self.param.k)
+        x0, recon_error, meas_error, iteration, success = self.get_projection(T0, x0[T0], step_func, truncated=False)
+
+        for iteration_alg in range(self.param.max_iter):
+            grad = self.gradient_f(x0)
+            sort_grad_index = np.argsort(-abs(grad), axis=0)
+            T1 = sort_grad_index[0:self.param.k, :].reshape(self.param.k)
+            T_tilde = np.union1d(T0, T1)
+            x_tilde, recon_error, meas_error, iteration, success = self.get_projection(T_tilde, x0[T_tilde], step_func, truncated=False)
+
+            sort_x_index = np.argsort(-abs(x_tilde), axis=0)
+            T0 = sort_x_index[0:self.param.k, :].reshape(self.param.k)
+            x0, recon_error, meas_error, iteration, success = self.get_projection(T0, x_tilde[T0], step_func, truncated=False)
+            if success:
+                break
+        return recon_error, meas_error, iteration_alg, success
 
 
 class HTP_PR(PhaseRetrieval):

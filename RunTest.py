@@ -54,7 +54,7 @@ import Algorithms
 class ParameterSetting(object):
 
     def __init__(self, n, m, k, epsilon, step_value, isComplex, trial_num, max_iter, algorithm, data_type,
-                 step_chooser, searcher, initializer):
+                 step_chooser, projection, initializer):
         self.n = n
         self.m = m
         self.k = k
@@ -66,7 +66,7 @@ class ParameterSetting(object):
         self.algorithm = algorithm
         self.data_type = data_type
         self.step_chooser = step_chooser
-        self.searcher = searcher
+        self.projection = projection
         self.initializer = initializer
 
 
@@ -96,8 +96,8 @@ def run_experiment(param):
     end_time_all = time.time()
     print('time for %d experiments is %f, success rate is %f' % (
         param.trial_num, end_time_all - start_time_all, success_exp / param.trial_num))
-    record.write(str(param.n) + ',' + str(param.m) + ',' + str(param.k) + ',' + str(param.step_value) + ',' + \
-                 str(success_exp / param.trial_num) + ',' + str(end_time_all - start_time_all) + '\n')
+    # record.write(str(param.n) + ',' + str(param.m) + ',' + str(param.k) + ',' + str(param.step_value) + ',' + \
+    #             str(success_exp / param.trial_num) + ',' + str(end_time_all - start_time_all) + '\n')
     record.flush()
 
 
@@ -105,16 +105,23 @@ record = open('record_N_m.txt', 'a+')
 # record.write('n, m, k, step, success rate, time\n')
 
 
-k = 100
+# k = 100
+#
+# for m in [100, 150, 200, 250, 300, 350]:
+#     for step_value in [250, 200, 150, 100, 50]:
+#         print('*' * 10, 'k %d, m %d, step %d' %(k, m, step_value), '*' * 10)
+#         param_setting = ParameterSetting(n=100, m=m, k=k, epsilon=0.001, step_value=step_value,
+#                                          isComplex=False, trial_num=500, max_iter=3000, algorithm='N_PR',
+#                                          step_chooser='constant_step', data_type='Gaussian',
+#                                          projection='newton', initializer='init_spectral')
+#         run_experiment(param_setting)
 
-for m in [100, 150, 200, 250, 300, 350]:
-    for step_value in [250, 200, 150, 100, 50]:
-        print('*' * 10, 'k %d, m %d, step %d' %(k, m, step_value), '*' * 10)
-        param_setting = ParameterSetting(n=100, m=m, k=k, epsilon=0.001, step_value=step_value,
-                                         isComplex=False, trial_num=500, max_iter=3000, algorithm='N_PR',
+param_setting = ParameterSetting(n=100, m=400, k=10, epsilon=0.001, step_value=100,
+                                         isComplex=False, trial_num=5, max_iter=3000, algorithm='SP_PR',
                                          step_chooser='constant_step', data_type='Gaussian',
-                                         searcher='newton', initializer='init_spectral')
-        run_experiment(param_setting)
+                                         projection='newton', initializer='init_spectral')
+run_experiment(param_setting)
+
 
 
 record.close()
