@@ -116,10 +116,10 @@ class ProjectionMethod(LossFunction):
             if min(recon_error[-1], meas_error[-1]) < self.epsilon:
                 success = True
                 break
+            if np.linalg.norm(delta_x, 2) * step < 0.0001:
+                break
         x_hat = self.get_full_x(x_hat)
         return x_hat, recon_error, meas_error, iteration, success
-
-
 
     def newton(self, x0, step_func, truncated):
         recon_error = [self.reconstruct_error(x0)]
@@ -140,13 +140,14 @@ class ProjectionMethod(LossFunction):
                 x_hat[x_sort_index[0:(self.n - self.k), 0]] = 0
             recon_error.append(self.reconstruct_error(x_hat))
             meas_error.append(self.measurement_error(x_hat))
-            if x_hat[0] == 0:
-                print()
-            if np.linalg.norm(delta_x, 2) * step< 0.0001:
-                break
+
             if min(recon_error[-1], meas_error[-1]) < self.epsilon:
                 success = True
                 break
+
+            if np.linalg.norm(delta_x, 2) * step < 0.0001:
+                break
+
         x_hat = self.get_full_x(x_hat)
         return x_hat, recon_error, meas_error, iteration, success
 
