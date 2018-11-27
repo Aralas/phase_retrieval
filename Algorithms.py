@@ -35,7 +35,7 @@ class PhaseRetrieval(object):
     def select_initialization(self, initializer):
         init_object = Initialization.Initialization(self.A, self.z, self.param.k, self.param.data_type,
                                                     self.param.isComplex)
-        if initializer in ['init_random', 'init_spectral', 'init_optimal_spectral']:
+        if initializer in ['init_random', 'init_constant', 'init_spectral', 'init_optimal_spectral']:
             init_func = getattr(init_object, initializer)
             return init_func
         else:
@@ -95,13 +95,6 @@ class SP_PR(PhaseRetrieval):
     def __init__(self, x, A, y, z, param):
         PhaseRetrieval.__init__(self, x, A, y, z, param)
 
-    # def obtain_largest_grad_index(self, x_hat, A_subspace):
-    #     projection_object = Projection.ProjectionMethod(self.x, A_subspace, self.y, self.z, self.param)
-    #     grad = projection_object.gradient(x_hat)
-    #     sort_index = np.argsort(-abs(grad), axis=0)
-    #     T_tilde = sort_index[0:self.param.k, :]
-    #     return T_tilde
-
     def get_projection(self, support, x0, step_func, truncated):
         projection_func = self.select_projection_method(self.param.projection, support)
         x_hat, recon_error, meas_error, iteration, success = projection_func(x0, step_func, truncated)
@@ -127,11 +120,47 @@ class SP_PR(PhaseRetrieval):
             sort_grad_index = np.argsort(-abs(grad), axis=0)
             T1 = sort_grad_index[0:self.param.k, :].reshape(self.param.k)
             T_tilde = np.union1d(T0, T1)
-            x_tilde, recon_error, meas_error, iteration, success = self.get_projection(T_tilde, x0[T_tilde], step_func, truncated=False)
+            x_tilde, recon_error, meas_error, iteration, success = self.get_projection(T_tilde, x0[T_tilde], step_func,
+                                                                                       truncated=False)
 
             sort_x_index = np.argsort(-abs(x_tilde), axis=0)
             T0 = sort_x_index[0:self.param.k, :].reshape(self.param.k)
-            x0, recon_error, meas_error, iteration, success = self.get_projection(T0, x_tilde[T0], step_func, truncated=False)
+            x0, recon_error, meas_error, iteration, success = self.get_projection(T0, x_tilde[T0], step_func,
+                                                                                  truncated=False)
+            if success:
+                break
+        return recon_error, meas_error, iteration_alg, success
+
+
+class OMP_PR(PhaseRetrieval):
+
+    def __init__(self, x, A, y, z, param):
+        PhaseRetrieval.__init__(self, x, A, y, z, param)
+
+    def get_projection(self, support, x0, step_func, truncated):
+        projection_func = self.select_projection_method(self.param.projection, support)
+        x_hat, recon_error, meas_error, iteration, success = projection_func(x0, step_func, truncated)
+        return x_hat, recon_error, meas_error, iteration, success
+
+    def gradient_f(self, x_hat):
+        z_hat = self.A.dot(x_hat) ** 2
+        b = z_hat - self.z
+        grad = 2 / len(self.A) * np.dot(np.dot(self.A.transpose(), b * self.A), x_hat)
+        return grad
+
+    def solver(self):
+        init_func = self.select_initialization(self.param.initializer)
+        step_func = self.select_step_chooser(self.param.step_chooser)
+        x0 = init_func()
+        index_set = []
+
+        for iteration_alg in range(self.param.k):
+            grad = self.gradient_f(x0)
+            grad[index_set] = 0
+            sort_grad_index = np.argsort(-abs(grad), axis=0).reshape(self.n)
+            index_set.append(sort_grad_index[0])
+            x0, recon_error, meas_error, iteration, success = self.get_projection(index_set, x0[index_set], step_func,
+                                                                                       truncated=False)
             if success:
                 break
         return recon_error, meas_error, iteration_alg, success
@@ -143,10 +172,5 @@ class HTP_PR(PhaseRetrieval):
 
 
 class IHT_PR(PhaseRetrieval):
-    def solver(self):
-        pass
-
-
-class OMP_PR(PhaseRetrieval):
     def solver(self):
         pass

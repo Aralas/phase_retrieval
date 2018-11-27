@@ -19,6 +19,8 @@ import numpy as np
 import random
 from numpy.linalg import norm
 from scipy.sparse.linalg import eigs
+
+
 #
 # from .containers import Options
 # from .matops import ConvolutionMatrix
@@ -34,6 +36,9 @@ class Initialization(object):
         self.isComplex = isComplex
         self.m, self.n = A.shape
 
+    def init_constant(self):
+        x0 = np.ones((self.n, 1))
+        return x0
 
     def init_random(self):
 
@@ -56,10 +61,9 @@ class Initialization(object):
         [eval, x0] = eigs(Y, k=1, which='LR')
         x0 = x0 * scale_value / norm(x0)
         return x0
-    
+
     def init_optimal_spectral(self):
         pass
-        
 
 
 def init_spectral(A, b0, At=None, is_scaled=False, is_truncated=False, verbose=False):
