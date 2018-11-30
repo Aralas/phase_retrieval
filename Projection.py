@@ -71,6 +71,11 @@ class LossFunction(object):
         hess = np.dot(self.A_trunc.transpose(), self.A_trunc * b)
         return hess
 
+    def jacobian(self, x_hat):
+        y_hat = np.dot(self.A_trunc, x_hat)
+        J = 2 * y_hat * self.A_trunc
+        return J
+
     def get_full_x(self, x_hat):
         x0 = np.zeros((self.n, 1))
         x0[self.support] = x_hat
@@ -151,12 +156,33 @@ class ProjectionMethod(LossFunction):
         x_hat = self.get_full_x(x_hat)
         return x_hat, recon_error, meas_error, iteration, success
 
-    # def gauss_newton(self, x_hat, step_func, support):
-    #     As = self.A[:, support]
-    #     xs = x_hat[support]
-    #     y_hat = np.dot(As, xs)
-    #     J = 2 * y_hat * self.A
-    #     return x_new
+    def gauss_newton(self, x0, step_func, truncated):
+        recon_error = [self.reconstruct_error(x0)]
+        meas_error = [self.measurement_error(x0)]
+        success = False
+        x_hat = x0
+        for iteration in range(self.max_iter):
+            J = self.jacobian(x_hat)
+            r = self.z - np.dot(self.A_trunc, x_hat) ** 2
+            pseudoinverse = np.dot(np.array(np.mat(np.dot(J.transpose(), J)).I), J.transpose())
+            delta_x = np.dot(pseudoinverse, r)
+            step = step_func(x_hat, delta_x)
+            x_hat = x_hat + step * delta_x
+            if truncated:
+                x_sort_index = abs(x_hat).argsort(axis=0)
+                x_hat[x_sort_index[0:(self.n - self.k), 0]] = 0
+            recon_error.append(self.reconstruct_error(x_hat))
+            meas_error.append(self.measurement_error(x_hat))
+
+            if min(recon_error[-1], meas_error[-1]) < self.epsilon:
+                success = True
+                break
+
+            if np.linalg.norm(delta_x, 2) * step < 0.0001:
+                break
+
+        x_hat = self.get_full_x(x_hat)
+        return x_hat, recon_error, meas_error, iteration, success
 
     def steepest_descent(self, x_hat, delta_x, step):
         pass

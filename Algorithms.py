@@ -51,7 +51,7 @@ class PhaseRetrieval(object):
 
     def select_projection_method(self, projection, support):
         projection_object = Projection.ProjectionMethod(support, self.x, self.A, self.y, self.z, self.param)
-        if projection in ['gradient_descent', 'newton', 'guassian_newton', 'steepest_descent', 'coordinate_descent']:
+        if projection in ['gradient_descent', 'newton', 'gauss_newton', 'steepest_descent', 'coordinate_descent']:
             projection_func = getattr(projection_object, projection)
             return projection_func
         else:
@@ -66,11 +66,12 @@ class GD_PR(PhaseRetrieval):
     def solver(self):
         init_func = self.select_initialization(self.param.initializer)
         step_func = self.select_step_chooser(self.param.step_chooser)
-        projection_func = self.select_projection_method(self.param.projection, np.array(range(self.n)))
+        # projection_func = self.select_projection_method(self.param.projection, np.array(range(self.n)))
+        projection_object = Projection.ProjectionMethod(np.array(range(self.n)), self.x, self.A, self.y, self.z,
+                                                        self.param)
         x0 = init_func()
-
-        x_hat, recon_error, meas_error, iteration, success = projection_func(x0, step_func, truncated=True)
-
+        x_hat, recon_error, meas_error, iteration, success = projection_object.gradient_descent(x0, step_func,
+                                                                                                truncated=True)
         return recon_error, meas_error, iteration, success
 
 
@@ -82,11 +83,28 @@ class N_PR(PhaseRetrieval):
     def solver(self):
         init_func = self.select_initialization(self.param.initializer)
         step_func = self.select_step_chooser(self.param.step_chooser)
-        projection_func = self.select_projection_method(self.param.projection, np.array(range(self.n)))
+        # projection_func = self.select_projection_method(self.param.projection, np.array(range(self.n)))
+        projection_object = Projection.ProjectionMethod(np.array(range(self.n)), self.x, self.A, self.y, self.z,
+                                                        self.param)
         x0 = init_func()
+        x_hat, recon_error, meas_error, iteration, success = projection_object.newton(x0, step_func, truncated=True)
+        return recon_error, meas_error, iteration, success
 
-        x_hat, recon_error, meas_error, iteration, success = projection_func(x0, step_func, truncated=True)
 
+class GN_PR(PhaseRetrieval):
+
+    def __init__(self, x, A, y, z, param):
+        PhaseRetrieval.__init__(self, x, A, y, z, param)
+
+    def solver(self):
+        init_func = self.select_initialization(self.param.initializer)
+        step_func = self.select_step_chooser(self.param.step_chooser)
+        # projection_func = self.select_projection_method(self.param.projection, np.array(range(self.n)))
+        projection_object = Projection.ProjectionMethod(np.array(range(self.n)), self.x, self.A, self.y, self.z,
+                                                        self.param)
+        x0 = init_func()
+        x_hat, recon_error, meas_error, iteration, success = projection_object.gauss_newton(x0, step_func,
+                                                                                            truncated=True)
         return recon_error, meas_error, iteration, success
 
 
@@ -160,7 +178,7 @@ class OMP_PR(PhaseRetrieval):
             sort_grad_index = np.argsort(-abs(grad), axis=0).reshape(self.n)
             index_set.append(sort_grad_index[0])
             x0, recon_error, meas_error, iteration, success = self.get_projection(index_set, x0[index_set], step_func,
-                                                                                       truncated=False)
+                                                                                  truncated=False)
             if success:
                 break
         return recon_error, meas_error, iteration_alg, success

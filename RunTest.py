@@ -89,7 +89,7 @@ def run_experiment(param):
     for experiment_i in range(param.trial_num):
         try:
             signal.signal(signal.SIGALRM, handler)
-            signal.alarm(600)
+            signal.alarm(100)
             start_time = time.time()
             seed = experiment_i
             x, A, y, z = GD.generate_data(seed, param)
@@ -101,49 +101,28 @@ def run_experiment(param):
             print('experiment: %d, success_rate: %f, recon_error: %f, meas_error: %f, iteration: %d, time: %f' % (
                 experiment_i, success_exp / (experiment_i + 1), reconstruct_error[-1], measurement_error[-1], iteration,
                 end_time - start_time))
-        except AssertionError:
-            print('timeout')
-        else:
-            pass
+        except:
+            print('experiment: %d, success_rate: %f' % (experiment_i, success_exp / (experiment_i + 1)))
+
     end_time_all = time.time()
     print('time for %d experiments is %f, success rate is %f' % (
         param.trial_num, end_time_all - start_time_all, success_exp / param.trial_num))
-    record.write(str(param.n) + ',' + str(param.m) + ',' + str(param.k) + ',' + str(param.step_value) + ',' + \
-                 str(success_exp / param.trial_num) + ',' + str(end_time_all - start_time_all) + '\n')
+    # record.write(str(param.n) + ',' + str(param.m) + ',' + str(param.k) + ',' + str(param.step_value) + ',' + \
+    #              str(success_exp / param.trial_num) + ',' + str(end_time_all - start_time_all) + '\n')
     record.flush()
 
 
-record = open('record_OMP_newton_k.txt', 'a+')
+record = open('record_GN_k.txt', 'a+')
 # record.write('n, m, k, step, success rate, time\n')
-for k in [20]:
+for k in [10, 30, 50, 70, 90]:
     for m in [400]:
-        for step_value in [90, 80, 70, 60, 50]:
-            print('*' * 10, 'k %d, m %d, step %d' % (k, m, step_value), '*' * 10)
+        for step_value in [0.01, 0.1, 1]:
+            print('*' * 10, 'k %d, m %d, step %f' % (k, m, step_value), '*' * 10)
             param_setting = ParameterSetting(n=100, m=m, k=k, epsilon=0.001, step_value=step_value,
-                                             isComplex=False, trial_num=500, max_iter=3000, algorithm='OMP_PR',
+                                             isComplex=False, trial_num=50, max_iter=2000, algorithm='GN_PR',
                                              step_chooser='constant_step', data_type='Gaussian',
-                                             projection='newton', initializer='init_spectral')
+                                             projection='gauss_newton', initializer='init_spectral')
             run_experiment(param_setting)
 
-for k in [25]:
-    for m in [400]:
-        for step_value in [300, 290, 280, 270, 260, 250, 240]:
-            print('*' * 10, 'k %d, m %d, step %d' % (k, m, step_value), '*' * 10)
-            param_setting = ParameterSetting(n=100, m=m, k=k, epsilon=0.001, step_value=step_value,
-                                             isComplex=False, trial_num=500, max_iter=3000, algorithm='OMP_PR',
-                                             step_chooser='constant_step', data_type='Gaussian',
-                                             projection='newton', initializer='init_spectral')
-            run_experiment(param_setting)
-
-for k in [30, 40, 50, 60, 70, 80, 90, 100]:
-    for m in [400]:
-        for step_value in [300, 290, 280, 270, 260, 250, 240, 230, 220, 210, 200, 190, 180, 170, 160,
-                           150, 140, 130, 120, 110, 100, 90, 80, 70, 60, 50]:
-            print('*' * 10, 'k %d, m %d, step %d' % (k, m, step_value), '*' * 10)
-            param_setting = ParameterSetting(n=100, m=m, k=k, epsilon=0.001, step_value=step_value,
-                                             isComplex=False, trial_num=500, max_iter=3000, algorithm='OMP_PR',
-                                             step_chooser='constant_step', data_type='Gaussian',
-                                             projection='newton', initializer='init_spectral')
-            run_experiment(param_setting)
 
 record.close()
