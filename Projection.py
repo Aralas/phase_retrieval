@@ -3,6 +3,22 @@
 @author:Xu Jingyi
 @file:ProjectionProjection.py
 @time:2018/11/914:37
+
+This script implements projection step in the algorithms, which contains two parts:
+1. step chooser
+2. projection method
+
+This is because our problem doesn't have any closed-form solution, thus we can only approximate the solution with
+a iterative fashion. In each iteration, we update our estimation given step and research direction.
+
+step chooser:
+    constant_step: use step_value defined in RunTest.py
+    backtracking_line_search: automatically generated based on the function and current point
+
+projection method:
+    gradient_descent
+    newton
+    gauss_newton
 """
 import numpy as np
 import math

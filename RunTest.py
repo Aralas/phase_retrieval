@@ -7,15 +7,14 @@
 This script will set parameters used for Phase Retrieval and run experiments.
 
 Parameters:
-    x: 1D signal
     n: length of signal
     m: length of measurements
     k: sparsity (x is non-sparse if k=n)
-    A: linear measurement matrix of size (n, m)
-    y: measurements y=Ax
-    z: squared value of y
-    isComplex: control whether x is complex-value
+    epsilon: stop condition
+    step_value: the step to update estimation in projection step
+    isComplex: control whether x is complex
     trial_num: number of experiments for each algorithm
+    max_iter: max number of iterations for projec†ion
 
     algorithm:
             GD_PR: Gradient Descent Phase Retrieval (Wirtinger Flow)
@@ -34,8 +33,6 @@ Parameters:
             gradient_descent
             newton
             guassian_newton
-            steepest_descent
-            coordinate_descent
 
     step_chooser:
             backtracking_line_search
@@ -43,6 +40,7 @@ Parameters:
 
     initializer:
             init_random
+            init_spectral
 
 """
 
@@ -78,7 +76,7 @@ def select_algorithm(algorithm):
     else:
         print('There is no such algorithm %s' % algorithm)
 
-
+# raise error to the experiment after fixed time
 def handler(signum, frame):
     raise AssertionError
 

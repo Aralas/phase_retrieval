@@ -19,7 +19,6 @@ Algorithms:
 import numpy as np
 import Initialization
 import Projection
-import math
 
 
 class PhaseRetrieval(object):
