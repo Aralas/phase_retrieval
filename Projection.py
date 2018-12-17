@@ -27,7 +27,7 @@ import math
 class StepChooser(object):
 
     def __init__(self, k, step_value):
-        self.alpha = 0.3
+        self.alpha = 0.1
         self.beta = 0.8
         self.tau = 1000
         self.k = k
@@ -40,18 +40,19 @@ class StepChooser(object):
     #         x_new[x_sort_index[0:(len(x) - k), 0]] = 0
     #     return x_new
 
-    # def backtracking_line_search(self, x_hat, delta_x):
-    #     step = 1
-    #     # while self.loss_func.f(self.generate_x(x_hat, self.k, step, delta_x)) >= (
-    #     #         self.loss_func.f(x_hat) + self.alpha * step * np.dot(self.loss_func.gradient(x_hat).transpose(),
-    #     #                                                              delta_x)):
-    #     while self.loss_func.f(x + step * delta_x) >= (
-    #             self.loss_func.f(x_hat) + self.alpha * step * np.dot(self.loss_func.gradient(x_hat).transpose(),
-    #                                                                  delta_x)):
-    #         step = step * self.beta
-    #     return step
+    def backtracking_line_search(self, x_hat, delta_x, f, grad):
+        step = self.step_value
+        # while self.loss_func.f(self.generate_x(x_hat, self.k, step, delta_x)) >= (
+        #         self.loss_func.f(x_hat) + self.alpha * step * np.dot(self.loss_func.gradient(x_hat).transpose(),
+        #                                                              delta_x)):
+        # while f(x_hat + step * delta_x) >= ( f(x_hat) + self.alpha * step * np.dot(grad(x_hat).transpose(), delta_x)):
+        while f(x_hat + step * delta_x) >= (f(x_hat) + self.alpha * step * np.linalg.norm(delta_x, 2)):
+            step = step * self.beta
+            if step < self.step_value / 100:
+                break
+        return step
 
-    def constant_step(self, x_hat, delta_x):
+    def constant_step(self, x_hat, delta_x, f, grad):
         return self.step_value
 
 
@@ -127,7 +128,7 @@ class ProjectionMethod(LossFunction):
         x_hat = x0
         for iteration in range(self.max_iter):
             delta_x = -1 * self.gradient(x_hat)
-            step = step_func(x_hat, delta_x)
+            step = step_func(x_hat, delta_x, self.f, self.gradient)
             x_hat = x_hat + step * delta_x
             if truncated:
                 x_sort_index = abs(x_hat).argsort(axis=0)
@@ -137,7 +138,7 @@ class ProjectionMethod(LossFunction):
             if min(recon_error[-1], meas_error[-1]) < self.epsilon:
                 success = True
                 break
-            if np.linalg.norm(delta_x, 2) * step < 0.0001:
+            if np.linalg.norm(delta_x, 2) * step < 0.00001:
                 break
         x_hat = self.get_full_x(x_hat)
         return x_hat, recon_error, meas_error, iteration, success
@@ -154,7 +155,7 @@ class ProjectionMethod(LossFunction):
                 delta_x = -1 * np.dot(np.array(np.mat(hess).I), grad)
             else:
                 delta_x = -1 * grad
-            step = step_func(x_hat, delta_x)
+            step = step_func(x_hat, delta_x, self.f, self.gradient)
             x_hat = x_hat + step * delta_x
             if truncated:
                 x_sort_index = abs(x_hat).argsort(axis=0)
@@ -166,7 +167,7 @@ class ProjectionMethod(LossFunction):
                 success = True
                 break
 
-            if np.linalg.norm(delta_x, 2) * step < 0.0001:
+            if np.linalg.norm(delta_x, 2) * step < 0.00001:
                 break
 
         x_hat = self.get_full_x(x_hat)
@@ -182,7 +183,7 @@ class ProjectionMethod(LossFunction):
             r = self.z - np.dot(self.A_trunc, x_hat) ** 2
             pseudoinverse = np.dot(np.array(np.mat(np.dot(J.transpose(), J)).I), J.transpose())
             delta_x = np.dot(pseudoinverse, r)
-            step = step_func(x_hat, delta_x)
+            step = step_func(x_hat, delta_x, self.f, self.gradient)
             x_hat = x_hat + step * delta_x
             if truncated:
                 x_sort_index = abs(x_hat).argsort(axis=0)
@@ -194,17 +195,12 @@ class ProjectionMethod(LossFunction):
                 success = True
                 break
 
-            if np.linalg.norm(delta_x, 2) * step < 0.0001:
+            if np.linalg.norm(delta_x, 2) * step < 0.00001:
                 break
 
         x_hat = self.get_full_x(x_hat)
         return x_hat, recon_error, meas_error, iteration, success
 
-    def steepest_descent(self, x_hat, delta_x, step):
-        pass
-
-    def coordinate_descent(self, x_hat, delta_x, step):
-        pass
 
 # class GradientDescent(LossFunction):
 #

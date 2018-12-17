@@ -110,15 +110,16 @@ def run_experiment(param):
     record.flush()
 
 
-record = open('record_OMP_gradient_k.txt', 'a+')
+record = open('record_GN_k.txt', 'a+')
 # record.write('n, m, k, step, success rate, time\n')
-for step_value in [0.005, 0.003, 0.002, 0.001]:
+for step_value in [3]:
+    record.write('\n')
     for k in [6, 8, 10, 15, 20, 25, 30, 40, 50, 60, 70, 80, 90, 100]:
-        for m in [300]:
+        for m in [400]:
             print('*' * 10, 'k %d, m %d, step %f' % (k, m, step_value), '*' * 10)
             param_setting = ParameterSetting(n=100, m=m, k=k, epsilon=0.001, step_value=step_value,
-                                             isComplex=False, trial_num=500, max_iter=2000, algorithm='OMP_PR',
-                                             step_chooser='constant_step', data_type='Gaussian',
-                                             projection='gradient', initializer='init_spectral')
+                                             isComplex=False, trial_num=500, max_iter=2000, algorithm='GN_PR',
+                                             step_chooser='backtracking_line_search', data_type='Gaussian',
+                                             projection='gauss_newton', initializer='init_spectral')
             run_experiment(param_setting)
 record.close()
