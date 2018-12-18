@@ -85,22 +85,22 @@ def run_experiment(param):
     success_exp = 0
     start_time_all = time.time()
     for experiment_i in range(param.trial_num):
-        try:
-            signal.signal(signal.SIGALRM, handler)
-            signal.alarm(100)
-            start_time = time.time()
-            seed = experiment_i
-            x, A, y, z = GD.generate_data(seed, param)
-            alg_class = select_algorithm(param.algorithm)
-            alg_object = alg_class(x, A, y, z, param)
-            reconstruct_error, measurement_error, iteration, success = alg_object.solver()
-            success_exp += success
-            end_time = time.time()
-            print('experiment: %d, success_rate: %f, recon_error: %f, meas_error: %f, iteration: %d, time: %f' % (
-                experiment_i, success_exp / (experiment_i + 1), reconstruct_error[-1], measurement_error[-1], iteration,
-                end_time - start_time))
-        except:
-            print('experiment: %d, success_rate: %f' % (experiment_i, success_exp / (experiment_i + 1)))
+    # try:
+        signal.signal(signal.SIGALRM, handler)
+        signal.alarm(100)
+        start_time = time.time()
+        seed = experiment_i
+        x, A, y, z = GD.generate_data(seed, param)
+        alg_class = select_algorithm(param.algorithm)
+        alg_object = alg_class(x, A, y, z, param)
+        reconstruct_error, measurement_error, iteration, success = alg_object.solver()
+        success_exp += success
+        end_time = time.time()
+        print('experiment: %d, success_rate: %f, recon_error: %f, meas_error: %f, iteration: %d, time: %f' % (
+            experiment_i, success_exp / (experiment_i + 1), reconstruct_error[-1], measurement_error[-1], iteration,
+            end_time - start_time))
+    # except:
+        print('experiment: %d, success_rate: %f' % (experiment_i, success_exp / (experiment_i + 1)))
 
     end_time_all = time.time()
     print('time for %d experiments is %f, success rate is %f' % (
@@ -110,16 +110,16 @@ def run_experiment(param):
     record.flush()
 
 
-record = open('record_GN_k.txt', 'a+')
+record = open('record_OMP_GN_k.txt', 'a+')
 # record.write('n, m, k, step, success rate, time\n')
-for step_value in [3]:
+for step_value in [1]:
     record.write('\n')
-    for k in [6, 8, 10, 15, 20, 25, 30, 40, 50, 60, 70, 80, 90, 100]:
-        for m in [400]:
+    for k in [6, 8, 10, 15, 20, 25, 30, 40, 50]:
+        for m in [300]:
             print('*' * 10, 'k %d, m %d, step %f' % (k, m, step_value), '*' * 10)
             param_setting = ParameterSetting(n=100, m=m, k=k, epsilon=0.001, step_value=step_value,
-                                             isComplex=False, trial_num=500, max_iter=2000, algorithm='GN_PR',
-                                             step_chooser='backtracking_line_search', data_type='Gaussian',
+                                             isComplex=False, trial_num=500, max_iter=1000, algorithm='OMP_PR',
+                                             step_chooser='constant_step', data_type='Gaussian',
                                              projection='gauss_newton', initializer='init_spectral')
             run_experiment(param_setting)
 record.close()

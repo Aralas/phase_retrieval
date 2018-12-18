@@ -160,7 +160,7 @@ class OMP_PR(PhaseRetrieval):
         return x_hat, recon_error, meas_error, iteration, success
 
     def gradient_f(self, x_hat):
-        z_hat = self.A.dot(x_hat) ** 2
+        z_hat = (np.dot(self.A, x_hat) ** 2).reshape(self.m, 1)
         b = z_hat - self.z
         grad = 2 / len(self.A) * np.dot(np.dot(self.A.transpose(), b * self.A), x_hat)
         return grad
@@ -176,16 +176,54 @@ class OMP_PR(PhaseRetrieval):
             grad[index_set] = 0
             sort_grad_index = np.argsort(-abs(grad), axis=0).reshape(self.n)
             index_set.append(sort_grad_index[0])
-            x0, recon_error, meas_error, iteration, success = self.get_projection(index_set, x0[index_set], step_func,
-                                                                                  truncated=False)
+            num_trial = 10
+            x_project = np.zeros([num_trial, self.n])
+            error = []
+            for test in range(num_trial):
+                x_init = np.random.randn(len(index_set), 1)
+                x_temp, recon_error, meas_error, iteration, success = self.get_projection(index_set, x_init, step_func,
+                                                                                                   truncated=False)
+                x_project[test, :] = x_temp.reshape(self.n, )
+                error.append(meas_error)
+                if success:
+                    x0 = x_project[test]
+                    break
+            x0 = x_project[error.index(min(error))]
             if success:
                 break
         return recon_error, meas_error, iteration_alg, success
 
 
 class HTP_PR(PhaseRetrieval):
+
+    def __init__(self, x, A, y, z, param):
+        PhaseRetrieval.__init__(self, x, A, y, z, param)
+
+    def get_projection(self, support, x0, step_func, truncated):
+        projection_func = self.select_projection_method(self.param.projection, support)
+        x_hat, recon_error, meas_error, iteration, success = projection_func(x0, step_func, truncated)
+        return x_hat, recon_error, meas_error, iteration, success
+
+    def gradient_f(self, x_hat):
+        z_hat = self.A.dot(x_hat) ** 2
+        b = z_hat - self.z
+        grad = 2 / len(self.A) * np.dot(np.dot(self.A.transpose(), b * self.A), x_hat)
+        return grad
+
     def solver(self):
-        pass
+        init_func = self.select_initialization(self.param.initializer)
+        step_func = self.select_step_chooser(self.param.step_chooser)
+        x0 = init_func()
+
+        for iteration_alg in range(self.param.max_iter):
+            grad = self.gradient_f(x0)
+            sort_index = np.argsort(-abs(x0 - grad), axis=0)
+            T = sort_index[0:self.param.k, :].reshape(self.param.k)
+            x0, recon_error, meas_error, iteration, success = self.get_projection(T, x0[T], step_func, truncated=False)
+
+            if success:
+                break
+        return recon_error, meas_error, iteration_alg, success
 
 
 class IHT_PR(PhaseRetrieval):
