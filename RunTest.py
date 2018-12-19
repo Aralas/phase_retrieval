@@ -70,7 +70,7 @@ class ParameterSetting(object):
 
 
 def select_algorithm(algorithm):
-    if algorithm in ['GD_PR', 'N_PR', 'GN_PR', 'SP_PR', 'HTP_PR', 'IHT_PR', 'OMP_PR']:
+    if algorithm in ['GD_PR', 'N_PR', 'GN_PR', 'SP_PR', 'HTP_PR', 'IHT_PR', 'OMP_PR', 'OMP_PR_2']:
         alg_module_class = getattr(Algorithms, algorithm)
         return alg_module_class
     else:
@@ -110,12 +110,12 @@ def run_experiment(param):
     record.flush()
 
 
-record = open('record_OMP_GN_k.txt', 'a+')
+record = open('record_OMP_2_GN_k.txt', 'a+')
 # record.write('n, m, k, step, success rate, time\n')
 for step_value in [1]:
     record.write('\n')
-    for k in [6, 8, 10, 15, 20, 25, 30, 40, 50]:
-        for m in [300]:
+    for k in [6, 8, 10, 15, 20, 25, 30, 35, 40, 45, 50]:
+        for m in [400, 350, 300, 250, 200, 150, 100]:
             print('*' * 10, 'k %d, m %d, step %f' % (k, m, step_value), '*' * 10)
             param_setting = ParameterSetting(n=100, m=m, k=k, epsilon=0.001, step_value=step_value,
                                              isComplex=False, trial_num=500, max_iter=1000, algorithm='OMP_PR',
