@@ -253,7 +253,7 @@ class HTP_PR(PhaseRetrieval):
         return x_hat, recon_error, meas_error, iteration, success
 
     def gradient_f(self, x_hat):
-        z_hat = self.A.dot(x_hat) ** 2
+        z_hat = (np.dot(self.A, x_hat) ** 2).reshape(self.m, 1)
         b = z_hat - self.z
         grad = 2 / len(self.A) * np.dot(np.dot(self.A.transpose(), b * self.A), x_hat)
         return grad
