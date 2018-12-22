@@ -180,9 +180,12 @@ class OMP_PR(PhaseRetrieval):
             x_project = np.zeros([num_trial, self.n])
             error = []
             for test in range(num_trial):
-                x_init = np.random.randn(len(index_set), 1)
+                if test == 0:
+                    x_init = x0[index_set]
+                else:
+                    x_init = np.random.randn(len(index_set), 1)
                 x_temp, recon_error, meas_error, iteration, success = self.get_projection(index_set, x_init, step_func,
-                                                                                                   truncated=False)
+                                                                                          truncated=False)
                 x_project[test, :] = x_temp.reshape(self.n, )
                 error.append(meas_error)
                 if success:
@@ -227,7 +230,7 @@ class OMP_PR_2(PhaseRetrieval):
             for test in range(num_trial):
                 x_init = np.random.randn(len(index_set), 1)
                 x_temp, recon_error, meas_error, iteration, success = self.get_projection(index_set, x_init, step_func,
-                                                                                                   truncated=False)
+                                                                                          truncated=False)
                 x_project[test, :] = x_temp.reshape(self.n, )
                 error.append(meas_error)
                 if success:
@@ -237,7 +240,6 @@ class OMP_PR_2(PhaseRetrieval):
             if success:
                 break
         return recon_error, meas_error, iteration_alg, success
-
 
 
 class HTP_PR(PhaseRetrieval):
@@ -263,15 +265,28 @@ class HTP_PR(PhaseRetrieval):
 
         for iteration_alg in range(self.param.max_iter):
             grad = self.gradient_f(x0)
-            sort_index = np.argsort(-abs(x0 - grad), axis=0)
-            T = sort_index[0:self.param.k, :].reshape(self.param.k)
-            x0, recon_error, meas_error, iteration, success = self.get_projection(T, x0[T], step_func, truncated=False)
-
+            mu = 1
+            sort_index = np.argsort(-abs(x0 + mu * grad), axis=0)
+            index_set = sort_index[0:2 * self.param.k, :].reshape(2 * self.param.k)
+            num_trial = 10
+            x_project = np.zeros([num_trial, self.n])
+            error = []
+            for test in range(num_trial):
+                if test == 0:
+                    x_init = x0[index_set]
+                else:
+                    x_init = np.random.randn(len(index_set), 1)
+                x_temp, recon_error, meas_error, iteration, success = self.get_projection(index_set, x_init, step_func,
+                                                                                          truncated=False)
+                x_project[test, :] = x_temp.reshape(self.n, )
+                error.append(meas_error)
+                if success:
+                    x0 = x_project[test]
+                    break
+            x0 = x_project[error.index(min(error))]
             if success:
                 break
         return recon_error, meas_error, iteration_alg, success
 
 
-class IHT_PR(PhaseRetrieval):
-    def solver(self):
-        pass
+
