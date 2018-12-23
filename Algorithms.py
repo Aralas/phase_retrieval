@@ -181,7 +181,7 @@ class OMP_PR(PhaseRetrieval):
             error = []
             for test in range(num_trial):
                 if test == 0:
-                    x_init = x0[index_set]
+                    x_init = x0[index_set].reshape(len(index_set), 1)
                 else:
                     x_init = np.random.randn(len(index_set), 1)
                 x_temp, recon_error, meas_error, iteration, success = self.get_projection(index_set, x_init, step_func,
@@ -266,16 +266,18 @@ class HTP_PR(PhaseRetrieval):
         for iteration_alg in range(self.param.max_iter):
             grad = self.gradient_f(x0)
             mu = 1
-            sort_index = np.argsort(-abs(x0 + mu * grad), axis=0)
-            index_set = sort_index[0:2 * self.param.k, :].reshape(2 * self.param.k)
+            # sort_index = np.argsort(-abs(x0 + mu * grad), axis=0).reshape(self.n)
+            sort_index = np.argsort(-abs(mu * grad), axis=0).reshape(self.n)
+            index_set = sort_index[0:(self.param.k)].reshape(self.param.k)
             num_trial = 10
             x_project = np.zeros([num_trial, self.n])
             error = []
             for test in range(num_trial):
-                if test == 0:
-                    x_init = x0[index_set]
-                else:
-                    x_init = np.random.randn(len(index_set), 1)
+                # if test == 0:
+                #     x_init = x0[index_set].reshape(len(index_set), 1)
+                # else:
+                #     x_init = np.random.randn(len(index_set), 1)
+                x_init = np.random.randn(len(index_set), 1)
                 x_temp, recon_error, meas_error, iteration, success = self.get_projection(index_set, x_init, step_func,
                                                                                           truncated=False)
                 x_project[test, :] = x_temp.reshape(self.n, )

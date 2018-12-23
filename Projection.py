@@ -101,6 +101,9 @@ class LossFunction(object):
     def reconstruct_error(self, x_hat):
         # solve for solution:  alpha * x = x0
         x0 = self.get_full_x(x_hat)
+        if len(self.support) > self.k:
+            x_sort_index = abs(x_0).argsort(axis=0)
+            x_0[x_sort_index[0:(self.n - self.k), 0]] = 0
         xt = self.x.transpose()
         alpha = np.dot(xt, x0) / np.dot(xt, self.x)
         if alpha == 0:
@@ -111,6 +114,9 @@ class LossFunction(object):
 
     def measurement_error(self, x_hat):
         x0 = self.get_full_x(x_hat)
+        if len(self.support) > self.k:
+            x_sort_index = abs(x_0).argsort(axis=0)
+            x_0[x_sort_index[0:(self.n - self.k), 0]] = 0
         y0 = abs(self.A.dot(x0))
         error = np.linalg.norm(y0 - self.y, 2) / np.linalg.norm(self.y, 2)
         return error
